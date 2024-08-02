@@ -11,18 +11,24 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "9.5.0"
+      
       - uses: actions/setup-node@v3
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install Dependencies
-        run: npm ci
+        run: pnpm install
 
       - name: Build
         run: npm run build
 
       - name: Deploy to Juno
+        if: false
         uses: junobuild/juno-action@main
         with:
           args: deploy
