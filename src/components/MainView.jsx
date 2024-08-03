@@ -16,28 +16,34 @@ export const MainView = () => {
     if (!user?.key) {
       return;
     }
-    listDocs({
-      collection: "requests",
-      filter: {
-        matcher: {
-          description: `(^|:)${user.key}(:|$)`,
+    const doList = () => {
+      listDocs({
+        collection: "requests",
+        filter: {
+          matcher: {
+            description: `(^|:)${user.key}(:|$)`,
+          },
         },
-      },
-    })
-      .then(({ items }) => {
-        const requests = {};
-        for (const item of items) {
-          let list = requests[item.data.documentId];
-          if (!list) {
-            list = requests[item.data.documentId] = [];
-          }
-          list.push(item);
-        }
-        setRequests(requests);
       })
-      .catch((err) => {
-        console.error(err);
-      });
+        .then(({ items }) => {
+          const requests = {};
+          for (const item of items) {
+            let list = requests[item.data.documentId];
+            if (!list) {
+              list = requests[item.data.documentId] = [];
+            }
+            list.push(item);
+          }
+          setRequests(requests);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+    window.addEventListener("reload", doList);
+    return () => {
+      window.removeEventListener("reload", doList);
+    };
   }, [user]);
   return (
     <>
