@@ -160,7 +160,7 @@ function InputGroup7({
 }) {
 	return (
 		<div
-			className={`flex flex-row-reverse items-stretch w-full rounded-xl overflow-hidden bg-white shadow-[0_4px_10px_rgba(0,0,0,0.03)] ${className}`}
+			className={`flex flex-row-reverse items-stretch w-full rounded-xl overflow-hidden shadow-[0_4px_10px_rgba(0,0,0,0.03)] ${className}`}
 		>
 			<input
 				id={name}
@@ -236,7 +236,7 @@ function SelectMenu1({ value, setValue, options, className = "", disabled }) {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white text-base shadow-[0_4px_10px_rgba(0,0,0,0.03)] focus:outline-none">
+					<Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl text-base shadow-[0_4px_10px_rgba(0,0,0,0.03)] focus:outline-none">
 						{options.map((option) => (
 							<Listbox.Option
 								key={option.id}
@@ -367,7 +367,7 @@ function TableComponent({
 	prepareRow,
 }) {
 	return (
-		<div className="w-full min-w-[30rem] p-4 bg-white rounded-xl shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
+		<div className="w-full min-w-[30rem] p-4 rounded-xl shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
 			<table {...getTableProps()}>
 				<thead>
 					{headerGroups.map((headerGroup) => (
