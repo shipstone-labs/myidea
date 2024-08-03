@@ -41,6 +41,7 @@ export const MainView = () => {
         });
     };
     window.addEventListener("reload", doList);
+    doList();
     return () => {
       window.removeEventListener("reload", doList);
     };

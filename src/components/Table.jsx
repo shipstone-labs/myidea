@@ -400,7 +400,7 @@ function Table1({ setFocusedRow, requests }) {
         Cell: ({ value, row }) => {
           const { user } = useContext(AuthContext);
           const hasRequest =
-            (requests?.[row.key] || []).length > 0 &&
+            (requests?.[row.original.key] || []).length > 0 &&
             user.key === row.original.owner;
           return (
             <span>
@@ -408,8 +408,9 @@ function Table1({ setFocusedRow, requests }) {
                 <span title={value}>
                   <GiSelfLove className="inline-block align-middle" />
                   {hasRequest ? (
-                    <span>
-                      <GiIncomingRocket className="text-red-500" /> Req
+                    <span className="ms-2">
+                      <GiIncomingRocket className="text-red-500 inline-block" />{" "}
+                      Request
                     </span>
                   ) : undefined}
                 </span>
