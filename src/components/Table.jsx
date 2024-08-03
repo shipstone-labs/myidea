@@ -3,7 +3,6 @@
 import { listDocs } from "@junobuild/core";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "./Auth";
-import { Delete } from "./Delete";
 import { useCallback, useMemo, Fragment } from "react";
 
 import {
@@ -29,7 +28,7 @@ import {
   Transition,
 } from "@headlessui/react";
 import { DisplayDate } from "./View.jsx";
-import { GiIncomingRocket, GiSelfLove } from "react-icons/gi";
+import { GiIncomingRocket } from "react-icons/gi";
 
 export function Avatar({ src, alt = "avatar", large = false }) {
   return (
@@ -280,10 +279,10 @@ function TableComponent({
                       <th
                         key={key}
                         {...rest}
-                        className="px-3 text-start text-xs font-light uppercase cursor-pointer"
+                        className="px-1 text-start text-xs font-light uppercase cursor-pointer"
                         style={{ width: column.width }}
                       >
-                        <div className="flex gap-2 items-center">
+                        <div className="flex gap-1 items-center">
                           <div className="text-gray-600">
                             {column.render("Header")}
                           </div>
@@ -334,8 +333,8 @@ function TableComponent({
                         className={
                           row.original.owner === user.key ||
                           row.original.readers?.includes(user.key)
-                            ? "p-3 text-sm font-normal text-gray-700 first:rounded-l-lg last:rounded-r-lg"
-                            : "p-3 text-sm font-normal text-gray-400 first:rounded-l-lg last:rounded-r-lg"
+                            ? "p-1 text-sm font-normal text-gray-700 first:rounded-l-lg last:rounded-r-lg"
+                            : "p-1 text-sm font-normal text-gray-400 first:rounded-l-lg last:rounded-r-lg"
                         }
                       >
                         {cell.render("Cell")}
@@ -396,50 +395,9 @@ function Table1({ setFocusedRow, requests }) {
   const columns = useMemo(
     () => [
       {
-        Header: "Owner",
-        accessor: "owner",
-        Cell: ({ value, row }) => {
-          const { user } = useContext(AuthContext);
-          const hasRequest =
-            (requests?.[row.original.key] || []).length > 0 &&
-            user.key === row.original.owner;
-          return (
-            <span>
-              {value === user.key ? (
-                <span title={value}>
-                  <GiSelfLove className="inline-block align-middle" />
-                  {hasRequest ? (
-                    <span className="ms-2 border border-gray-300 p-0.5 rounded-lg">
-                      <GiIncomingRocket className="text-red-500 inline-block" />{" "}
-                      Request
-                    </span>
-                  ) : undefined}
-                </span>
-              ) : undefined}
-            </span>
-          );
-        },
-      },
-      {
         Header: "Created At",
         accessor: "created_at",
         Cell: ({ value }) => {
-          return <DisplayDate value={value} long />;
-        },
-      },
-      {
-        Header: "Updated At",
-        accessor: "updated_at",
-        Cell: ({ value }) => {
-          return <DisplayDate value={value} long />;
-        },
-      },
-      {
-        Header: "Decrypt At",
-        accessor: "decrypt_at",
-        Cell: ({ row }) => {
-          const value = row.original.data.decrypt_at;
-
           return <DisplayDate value={value} long />;
         },
       },
@@ -461,6 +419,7 @@ function Table1({ setFocusedRow, requests }) {
         accessor: (row) => {
           return row.data.title;
         },
+        width: "15%",
         Cell: ({ row }) => {
           return (
             <div
@@ -471,26 +430,34 @@ function Table1({ setFocusedRow, requests }) {
                 src={row.original.data.image || "/lightbulb-custom.png"}
                 alt={`${row.original.data.title}'s Image`}
               />
-              <div>{row.original.data.title}</div>
+              <p className="max-w-[150px] text-ellipsis overflow-hidden whitespace-nowrap">
+                {row.original.data.title}
+              </p>
             </div>
           );
         },
       },
       {
         Header: "Description",
+        width: "auto",
         accessor: (row) => {
           return row.data.description;
         },
         Cell: ({ row }) => {
+          const { description: _description } = row.original.data || {};
+          const description =
+            _description?.length > 137
+              ? `${_description.slice(0, 137)}...`
+              : _description;
           return (
-            <div className="flex gap-2 items-center">
-              <div>{row.original.data?.description}</div>
+            <div className="flex gap-2 items-center max-height-[3em] text-ellipsis">
+              <div>{description}</div>
             </div>
           );
         },
       },
       {
-        Header: "File",
+        Header: "Activity",
         accessor: (row) => {
           return row.data.file;
         },
@@ -501,6 +468,9 @@ function Table1({ setFocusedRow, requests }) {
           ) {
             return <div>Request Access</div>;
           }
+          const hasRequest =
+            (requests?.[row.original.key] || []).length > 0 &&
+            user.key === row.original.owner;
           const {
             data: { url, filename, mimeType, encrypted: _encrypted },
           } = row.original;
@@ -511,6 +481,13 @@ function Table1({ setFocusedRow, requests }) {
           return url && filename ? (
             <div title={`url=${url}, filename=${filename}`}>
               {mimeType}, {encrypted ? "encrypted" : "plain"}
+              {""}
+              {hasRequest ? (
+                <span className="ms-2 border border-gray-300 p-0.5 rounded-lg">
+                  <GiIncomingRocket className="text-red-500 inline-block" />{" "}
+                  Request
+                </span>
+              ) : undefined}
             </div>
           ) : undefined;
         },
@@ -523,22 +500,6 @@ function Table1({ setFocusedRow, requests }) {
         Cell: ({ row }) => {
           const value = row.original.data.tags;
           return <div>{(value || []).join(", ")}</div>;
-        },
-      },
-      {
-        Header: "Delete",
-        Cell: ({ row }) => {
-          return row.original.owner === user.key ? (
-            <Delete
-              item={row.original}
-              reload={() => {
-                const event = new Event("reload");
-                window.dispatchEvent(event);
-              }}
-            />
-          ) : (
-            ""
-          );
         },
       },
     ],
@@ -578,7 +539,7 @@ function Table1({ setFocusedRow, requests }) {
     usePagination
   );
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <div className="flex flex-col sm:flex-row justify-between gap-2">
         <GlobalSearchFilter1
           className="sm:w-64"
