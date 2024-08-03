@@ -109,37 +109,39 @@ export const View = ({ row, onClose, requests }) => {
         true // row.original.owner !== user.key
       ) {
         setRequesting(true);
-        try {
-          const key = nanoid();
-          await setDoc({
-            collection: "requests",
-            doc: {
-              key,
-              description: `${row.original.owner}:${user.key}`,
-              data: {
-                documentId: row.original.key,
-                user: user.key,
-                action: "request access",
+        setTimeout(async () => {
+          try {
+            const key = nanoid();
+            await setDoc({
+              collection: "requests",
+              doc: {
+                key,
+                description: `${row.original.owner}:${user.key}`,
+                data: {
+                  documentId: row.original.key,
+                  user: user.key,
+                  action: "request access",
+                },
               },
-            },
-          });
-          await setDoc({
-            collection: "activity",
-            doc: {
-              key,
-              description: row.original.key,
-              data: {
-                documentId: row.original.key,
-                user: user.key,
-                owner: row.original.owner,
-                action: "request access to document",
+            });
+            await setDoc({
+              collection: "activity",
+              doc: {
+                key,
+                description: row.original.key,
+                data: {
+                  documentId: row.original.key,
+                  user: user.key,
+                  owner: row.original.owner,
+                  action: "request access to document",
+                },
               },
-            },
-          });
-        } finally {
-          setRequesting(false);
-        }
-        onClose();
+            });
+            onClose();
+          } finally {
+            setRequesting(false);
+          }
+        });
       }
     },
     [row, user.key, onClose]
@@ -148,62 +150,64 @@ export const View = ({ row, onClose, requests }) => {
     async (approve, { item, corresponding }) => {
       const { data: { user } = {} } = item;
       setRequesting(true);
-      try {
-        await setManyDocs({
-          docs: [
-            {
-              collection: "notes",
-              doc: {
-                ...row.original,
-                data: {
-                  ...row.original.data,
-                  // Dumb and simple "set" handling.
-                  readers: approve
-                    ? [...(row.original.data.readers || []), user]
-                        .filter((item) => item != null)
-                        .reduce((acc, item) => {
-                          if (acc.includes(item)) {
+      setTimeout(async () => {
+        try {
+          await setManyDocs({
+            docs: [
+              {
+                collection: "notes",
+                doc: {
+                  ...row.original,
+                  data: {
+                    ...row.original.data,
+                    // Dumb and simple "set" handling.
+                    readers: approve
+                      ? [...(row.original.data.readers || []), user]
+                          .filter((item) => item != null)
+                          .reduce((acc, item) => {
+                            if (acc.includes(item)) {
+                              return acc;
+                            }
+                            acc.push(item);
                             return acc;
-                          }
-                          acc.push(item);
-                          return acc;
-                        }, [])
-                    : (row.original.data.readers || [])
-                        .filter((item) => item !== user && item != null)
-                        .reduce((acc, item) => {
-                          if (acc.includes(item)) {
+                          }, [])
+                      : (row.original.data.readers || [])
+                          .filter((item) => item !== user && item != null)
+                          .reduce((acc, item) => {
+                            if (acc.includes(item)) {
+                              return acc;
+                            }
+                            acc.push(item);
                             return acc;
-                          }
-                          acc.push(item);
-                          return acc;
-                        }, []),
+                          }, []),
+                  },
                 },
               },
-            },
-            {
-              collection: "activity",
-              doc: {
-                key: nanoid(),
-                data: {
-                  ...corresponding.data,
-                  action: approve ? "request approved" : "request rejected",
+              {
+                collection: "activity",
+                doc: {
+                  key: nanoid(),
+                  data: {
+                    ...corresponding.data,
+                    action: approve ? "request approved" : "request rejected",
+                  },
                 },
               },
-            },
-          ],
-        });
-        await deleteDoc({
-          collection: "requests",
-          doc: corresponding,
-        });
-        onClose();
-      } catch (err) {
-        console.error(err);
-        alert(err.message);
-      } finally {
-        window.dispatchEvent(new Event("reload"));
-        setRequesting(false);
-      }
+            ],
+          });
+          await deleteDoc({
+            collection: "requests",
+            doc: corresponding,
+          });
+          onClose();
+        } catch (err) {
+          console.error(err);
+          alert(err.message);
+        } finally {
+          window.dispatchEvent(new Event("reload"));
+          setRequesting(false);
+        }
+      }, 100);
     },
     [row, onClose]
   );
@@ -274,12 +278,16 @@ export const View = ({ row, onClose, requests }) => {
                   )}
                   {!requests[row.original.key]?.some(
                     (item) => item.data.user === user.key
-                  ) ? (
+                  ) && row.original.owner !== user.key ? (
                     <button
                       onClick={requestAccess}
                       type="button"
                       disabled={requesting}
-                      className="inline-block gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800  hover:bg-blue-600 dark:hover:bg-blue-300 dark:hover:text-black active:bg-blue-400 dark:active:bg-blue-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                      className={`inline-block gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 ${
+                        requesting
+                          ? "opacity-25"
+                          : "hover:bg-blue-600 dark:hover:bg-blue-300 dark:hover:text-black active:bg-blue-400 dark:active:bg-blue-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                      }`}
                     >
                       Request
                     </button>
@@ -471,7 +479,11 @@ export const View = ({ row, onClose, requests }) => {
                                   <button
                                     type="button"
                                     disabled={requesting}
-                                    className="flex items-center gap-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 hover:bg-green-600 dark:hover:bg-green-300 dark:hover:text-black active:bg-green-400 dark:active:bg-green-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                                    className={`inline-block gap-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 ${
+                                      requesting
+                                        ? "opacity-25"
+                                        : "hover:bg-green-600 dark:hover:bg-green-300 dark:hover:text-black active:bg-green-400 dark:active:bg-green-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                                    }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       approveRequest(true, {
@@ -480,12 +492,16 @@ export const View = ({ row, onClose, requests }) => {
                                       });
                                     }}
                                   >
-                                    <FaCheck /> Approve
+                                    <FaCheck className="inline-block" /> Approve
                                   </button>
                                   <button
                                     type="button"
                                     disabled={requesting}
-                                    className="flex items-center gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 hover:bg-red-600 dark:hover:bg-red-300 dark:hover:text-black active:bg-red-400 dark:active:bg-red-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                                    className={`inline-block gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 ${
+                                      requesting
+                                        ? "opacity-25"
+                                        : "hover:bg-red-600 dark:hover:bg-red-300 dark:hover:text-black active:bg-red-400 dark:active:bg-red-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                                    }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       approveRequest(false, {
@@ -494,7 +510,7 @@ export const View = ({ row, onClose, requests }) => {
                                       });
                                     }}
                                   >
-                                    <FaX /> Reject
+                                    <FaX className="inline-block" /> Reject
                                   </button>
                                 </div>
                               </>
