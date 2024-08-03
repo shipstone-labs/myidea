@@ -508,7 +508,7 @@ function Table1({ setFocusedRow, requests }) {
       {
         Header: "Tags",
         accessor: (row) => {
-          return row.data.tags.join(",");
+          return row.data.tags?.join(",") || "";
         },
         Cell: ({ row }) => {
           const value = row.original.data.tags;
