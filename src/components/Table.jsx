@@ -332,7 +332,8 @@ function TableComponent({
                         key={key}
                         {...rest}
                         className={
-                          row.original.owner === user.key
+                          row.original.owner === user.key ||
+                          row.original.readers?.includes(user.key)
                             ? "p-3 text-sm font-normal text-gray-700 first:rounded-l-lg last:rounded-r-lg"
                             : "p-3 text-sm font-normal text-gray-400 first:rounded-l-lg last:rounded-r-lg"
                         }
