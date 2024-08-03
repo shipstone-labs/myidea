@@ -11,15 +11,26 @@ export const Delete = ({ item, reload }) => {
 
 		try {
 			const {
-				data: { url },
+				data: { filename, imageFilename },
 			} = doc;
 
-			if (url !== undefined) {
-				const { pathname: fullPath } = new URL(url);
-
+			if (filename != null) {
 				await deleteAsset({
 					collection: "images",
-					fullPath,
+					filename,
+				}).catch((err) => {
+					console.error(err);
+					// Ignore for now
+				});
+			}
+
+			if (imageFilename != null) {
+				await deleteAsset({
+					collection: "images",
+					filename: imageFilename,
+				}).catch((err) => {
+					console.error(err);
+					// Ignore for now
 				});
 			}
 

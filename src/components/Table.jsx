@@ -79,11 +79,25 @@ const getColumns = () => [
 		},
 	},
 	{
-		Header: "Title",
-		accessor: "data.text",
-		Cell: ({ row, value }) => {
+		Header: "Inventor",
+		accessor: "data.inventor",
+		Cell: ({ value }) => {
 			return (
 				<div className="flex gap-2 items-center">
+					<div>{value}</div>
+				</div>
+			);
+		},
+	},
+	{
+		Header: "Title",
+		accessor: "data.title",
+		Cell: ({ row, value }) => {
+			return (
+				<div
+					className="flex gap-2 items-center"
+					title={row.original.description}
+				>
 					<Avatar
 						src={row.original.data.image || "/lightbulb-custom.png"}
 						alt={`${value}'s Image`}
@@ -104,7 +118,9 @@ const getColumns = () => [
 				encrypted: _encrypted,
 			} = row.original.data;
 			const encrypted =
-				_encrypted === true || (filename || url).endsWith(".enc");
+				_encrypted != null
+					? _encrypted
+					: (filename || url || "").endsWith(".enc");
 			return url !== undefined ? (
 				<Download
 					encrypted={encrypted}

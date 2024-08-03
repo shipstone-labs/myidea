@@ -16,6 +16,7 @@ export const Modal = () => {
 	const [file, setFile] = useState(undefined);
 	const [thumbnail, setThumbnail] = useState(undefined);
 	const [encrypted, setEncrypted] = useState(false);
+	const [title, setTitle] = useState("");
 	const [inventor, setInventor] = useState("");
 	const [tags, setTags] = useState([]);
 	const uploadElement = useRef(null);
@@ -31,12 +32,13 @@ export const Modal = () => {
 	useEffect(() => {
 		setValid(
 			description !== "" &&
+				title !== "" &&
 				file != null &&
 				inventor !== "" &&
 				user != null &&
 				(encrypted ? passPhrase !== "" : true),
 		);
-	}, [description, user, file, inventor, passPhrase, encrypted]);
+	}, [description, user, file, inventor, passPhrase, encrypted, title]);
 
 	const reload = () => {
 		const event = new Event("reload");
@@ -54,13 +56,16 @@ export const Modal = () => {
 		try {
 			let url;
 			let image;
+			let imageFilename;
 
 			const key = nanoid();
 			if (thumbnail !== undefined) {
+				imageFilename = `${user.key}-${key}.thumbnail`;
+
 				const { downloadUrl } = await uploadFile({
 					collection: "images",
 					data: thumbnail,
-					filename: `${user.key}-${key}.thumbnail`,
+					filename: imageFilename,
 				});
 				image = downloadUrl;
 			}
@@ -86,16 +91,17 @@ export const Modal = () => {
 					data: {
 						file: file !== undefined ? file.name : undefined,
 						filename,
+						imageFilename,
 						image,
 						mimeType: file !== undefined ? file.type : undefined,
-						encrypted: passPhrase !== undefined,
+						encrypted,
 						text: description,
+						title,
 						tags,
 						shared: false,
-						decrypt_at:
-							passPhrase && encrypted
-								? BigInt(new Date(publicDate).getTime()) * 1000000n
-								: null,
+						decrypt_at: encrypted
+							? BigInt(new Date(publicDate).getTime()) * 1000000n
+							: null,
 						...(url !== undefined && { url }),
 					},
 				},
@@ -107,6 +113,7 @@ export const Modal = () => {
 			setValid(false);
 			setProgress(false);
 			setFile(undefined);
+			setTitle("");
 			setTags([]);
 			setThumbnail(undefined);
 
@@ -165,9 +172,33 @@ export const Modal = () => {
 								disabled={progress}
 							/>
 						</div>
-
 						<div className="relative w-full max-w-xl">
 							<input
+								className="
+                  form-control
+                  block
+                  w-full
+                  px-3
+                  py-1.5
+                  text-base
+                  font-normal
+                  m-0
+                  resize-none
+                  border-black border-[3px] rounded-sm bg-white shadow-[5px_5px_0px_rgba(0,0,0,1)]
+                  focus:outline-none
+                "
+								rows={7}
+								placeholder="Title"
+								onChange={(e) => {
+									setTitle(e.target.value);
+								}}
+								value={title}
+								disabled={progress}
+							/>
+						</div>
+
+						<div className="relative w-full max-w-xl">
+							<textarea
 								className="
                   form-control
                   block
@@ -372,7 +403,17 @@ export const Modal = () => {
 								<button
 									className="py-1 px-8 hover:text-lavender-blue-600 active:text-lavender-blue-400"
 									type="button"
-									onClick={() => setShowModal(false)}
+									onClick={() => {
+										setShowModal(false);
+										setDescription("");
+										setPassPhrase("");
+										setValid(false);
+										setProgress(false);
+										setFile(undefined);
+										setTitle("");
+										setTags([]);
+										setThumbnail(undefined);
+									}}
 								>
 									Close
 								</button>

@@ -15,7 +15,8 @@ export const Download = ({
 	const [showModal, setShowModal] = useState(false);
 	const [passPhrase, setPassPhrase] = useState("");
 	const [progress, setProgress] = useState(false);
-	const encrypted = _encrypted || (url || filename || "").endsWith(".enc");
+	const encrypted =
+		_encrypted != null ? _encrypted : (url || filename || "").endsWith(".enc");
 
 	const { user } = useContext(AuthContext);
 
@@ -48,7 +49,10 @@ export const Download = ({
 					encrypted ? setShowModal(true) : window.open(url, "_blank");
 				}}
 			>
-				Download <FaUserSecret className="inline-block align-middle" />
+				Download{" "}
+				{encrypted ? (
+					<FaUserSecret className="inline-block align-middle" />
+				) : undefined}
 				<FaFileDownload className="inline-block align-middle" />
 			</Button>
 
