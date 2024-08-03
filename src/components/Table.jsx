@@ -518,7 +518,7 @@ function Table1({ setFocusedRow, requests }) {
       {
         Header: "Delete",
         Cell: ({ row }) => {
-          return (
+          return row.original.owner === user.key ? (
             <Delete
               item={row.original}
               reload={() => {
@@ -526,11 +526,13 @@ function Table1({ setFocusedRow, requests }) {
                 window.dispatchEvent(event);
               }}
             />
+          ) : (
+            ""
           );
         },
       },
     ],
-    [requests]
+    [requests, user]
   );
 
   const {
