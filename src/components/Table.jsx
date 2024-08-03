@@ -29,7 +29,8 @@ import {
   Transition,
 } from "@headlessui/react";
 import { DisplayDate } from "./View.jsx";
-import { FaMedal, FaTriangleExclamation } from "react-icons/fa6";
+import { FaTriangleExclamation } from "react-icons/fa6";
+import { GiSelfLove } from "react-icons/gi";
 
 export function Avatar({ src, alt = "avatar", large = false }) {
   return (
@@ -407,7 +408,7 @@ function Table1({ setFocusedRow, requests }) {
             <span>
               {value === user.key ? (
                 <span title={value}>
-                  <FaMedal className="inline-block align-middle" /> ME
+                  <GiSelfLove className="inline-block align-middle" />
                 </span>
               ) : undefined}
             </span>

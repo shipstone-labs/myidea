@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { FaCheck, FaX } from "react-icons/fa6";
 import { useCallback } from "react";
 import { nanoid } from "nanoid";
+import { GiSelfLove, GiShare } from "react-icons/gi";
 
 export const DisplayDate = ({ value, long }) => {
   const date = value ? new Date(Number(BigInt(value) / 1000000n)) : "";
@@ -245,13 +246,12 @@ export const View = ({ row, onClose, requests }) => {
                   {row.original.owner === user.key ? (
                     <span>
                       &nbsp;
-                      <FaMedal className="inline-block align-middle" /> ME
+                      <GiSelfLove className="inline-block align-middle" />
                     </span>
                   ) : (
                     <span>
                       &nbsp;
-                      <FaMedal className="inline-block align-middle" /> someone
-                      else
+                      <GiShare className="inline-block align-middle" />
                     </span>
                   )}
                 </span>
@@ -436,7 +436,7 @@ export const View = ({ row, onClose, requests }) => {
                               htmlFor="decryptionDate"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Decryption Date
+                              Decrypt File After
                             </label>
                             <input
                               id="decryptionDate"
@@ -529,11 +529,10 @@ export const View = ({ row, onClose, requests }) => {
                                 {corresponding == null &&
                                 item.owner === user.key ? (
                                   <>
-                                    <FaMedal className="inline-block align-middle" />{" "}
-                                    ME
+                                    <GiSelfLove className="inline-block align-middle" />
                                   </>
                                 ) : (
-                                  ""
+                                  <GiShare className="inline-block align-middle" />
                                 )}{" "}
                                 at <DisplayDate value={item.created_at} long />
                               </span>
@@ -544,17 +543,17 @@ export const View = ({ row, onClose, requests }) => {
                     </ul>
                   </div>
                 </div>
-                <div className="flex my-4">
-                  <button
-                    className="py-1 px-8 hover:text-blue-600 active:text-blue-400"
-                    type="button"
-                    onClick={onClose}
-                  >
-                    Close
-                  </button>
-                </div>
               </div>
             ) : undefined}
+            <div className="flex my-4">
+              <button
+                className="py-1 px-8 hover:text-blue-600 active:text-blue-400"
+                type="button"
+                onClick={onClose}
+              >
+                Close
+              </button>
+            </div>
           </form>
           <Backdrop />
         </>

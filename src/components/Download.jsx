@@ -3,10 +3,10 @@ import { useContext, useState } from "react";
 import { AuthContext } from "./Auth";
 import { Button } from "./Button";
 import { decryptFile } from "../util";
-import { FaFileDownload, FaUserSecret } from "react-icons/fa";
 import { setDoc } from "@junobuild/core";
 import { nanoid } from "nanoid";
 import { useRef } from "react";
+import { RiFileDownloadFill, RiFileShield2Fill } from "react-icons/ri";
 
 export const Download = ({
   url,
@@ -118,9 +118,9 @@ export const Download = ({
       >
         Download{" "}
         {encrypted ? (
-          <FaUserSecret className="inline-block align-middle" />
+          <RiFileShield2Fill className="inline-block align-middle" />
         ) : undefined}
-        <FaFileDownload className="inline-block align-middle" />
+        <RiFileDownloadFill className="inline-block align-middle" />
       </Button>
       <a
         alt="download"
