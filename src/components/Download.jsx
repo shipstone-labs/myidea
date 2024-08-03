@@ -6,6 +6,7 @@ import { decryptFile } from "../util";
 import { FaFileDownload, FaUserSecret } from "react-icons/fa";
 import { setDoc } from "@junobuild/core";
 import { nanoid } from "nanoid";
+import { useRef } from "react";
 
 export const Download = ({
   url,
@@ -18,6 +19,7 @@ export const Download = ({
   const [passPhrase, setPassPhrase] = useState("");
   const [progress, setProgress] = useState(false);
   const [error, setError] = useState(null);
+  const downloadElement = useRef(null);
   const encrypted =
     _encrypted != null ? _encrypted : (url || filename || "").endsWith(".enc");
 
@@ -56,7 +58,9 @@ export const Download = ({
           throw err;
         }
       );
-      window.open(file, "_blank");
+      downloadElement.current.href = file;
+      downloadElement.current.download = filename;
+      downloadElement.current.click();
 
       await setDoc({
         collection: "activity",
@@ -88,7 +92,7 @@ export const Download = ({
   };
 
   return (
-    <>
+    <div>
       <Button
         onClick={async (e) => {
           e.stopPropagation();
@@ -112,7 +116,9 @@ export const Download = ({
                 setError(err.message);
               })
               .then(console.log);
-            window.open(url, "_blank");
+            downloadElement.current.href = url;
+            downloadElement.current.download = filename;
+            downloadElement.current.click();
           }
         }}
         disabled={showModal}
@@ -123,13 +129,21 @@ export const Download = ({
         ) : undefined}
         <FaFileDownload className="inline-block align-middle" />
       </Button>
+      <a
+        alt="download"
+        ref={downloadElement}
+        className="hidden"
+        href={url}
+        download={filename}
+      >
+        download
+      </a>
 
       {error ? (
         <p className="text-red-500 text-xs italic my-3">
           Download failed: {error}
         </p>
       ) : undefined}
-
       {showModal ? (
         <>
           <div className="my-3 animate-fade" role="dialog">
@@ -185,6 +199,6 @@ export const Download = ({
           </div>
         </>
       ) : null}
-    </>
+    </div>
   );
 };

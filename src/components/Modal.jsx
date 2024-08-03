@@ -75,12 +75,12 @@ export const Modal = () => {
       });
       if (thumbnail !== undefined) {
         const extension = thumbnail.name.split(".").pop();
-        imageFilename = `${user.key}-${key}.thumbnail.${extension}`;
+        imageFilename = thumbnail.name;
 
         const { downloadUrl } = await uploadFile({
           collection: "images",
           data: thumbnail,
-          filename: imageFilename,
+          filename: `${user.key}-${key}.thumbnail.${extension}`,
         });
         image = downloadUrl;
         await setDoc({
@@ -99,16 +99,19 @@ export const Modal = () => {
       let filename = undefined;
       if (file !== undefined) {
         const extension = file.name.split(".").pop();
-        const finalFile = await encryptFile(file, passPhrase);
+        const finalFile = await encryptFile(
+          file,
+          encrypted ? passPhrase : null
+        );
 
-        filename = passPhrase
-          ? `${key}.${extension}.enc`
-          : `${key}.${extension}`;
+        filename = file.name;
 
         const { downloadUrl } = await uploadFile({
           collection: "images",
           data: finalFile,
-          filename,
+          filename: passPhrase
+            ? `${key}.${extension}.enc`
+            : `${key}.${extension}`,
         });
 
         await setDoc({
