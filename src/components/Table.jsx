@@ -486,6 +486,12 @@ function Table1({ setFocusedRow, requests }) {
           return row.data.file;
         },
         Cell: ({ row }) => {
+          if (
+            !row.original.data.readers?.includes(user.key) &&
+            row.original.owner !== user.key
+          ) {
+            return <div>Request Access</div>;
+          }
           const {
             data: { url, filename, mimeType, encrypted: _encrypted },
           } = row.original;

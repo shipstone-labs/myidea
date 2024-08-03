@@ -211,6 +211,9 @@ export const View = ({ row, onClose, requests }) => {
     },
     [row, onClose]
   );
+  const hasAccess =
+    row?.original?.owner === user.key ||
+    row?.original?.readers?.includes(user.key);
   return (
     <>
       {row ? (
@@ -260,12 +263,11 @@ export const View = ({ row, onClose, requests }) => {
                 htmlFor="owner"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
-                Have Access
+                I Have Access
               </label>
               <div className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <span id="owner" title={row.original.owner}>
-                  {row.original.owner === user.key ||
-                  row.original.readers?.includes(user.key) ? (
+                  {hasAccess ? (
                     <span>
                       &nbsp;
                       <FaCheck className="inline-block align-middle" /> Yes{" "}
@@ -296,27 +298,29 @@ export const View = ({ row, onClose, requests }) => {
                 <CopyToClipboardButton content={row.original.owner} />
               </div>
             </div>
-            <div className="mb-5 relative w-full max-w-xl">
-              <label
-                htmlFor="owner"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Users Who Have Access
-              </label>
-              <div className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <ul className="flex flex-col">
-                  {row.original.data?.readers?.map((item) => {
-                    return (
-                      <div key={item} className="flex flex-row flex-cols-2">
-                        <div className="flex flex-col grow">
-                          <small>{item}</small>
+            {row.original.data?.readers?.length ? (
+              <div className="mb-5 relative w-full max-w-xl">
+                <label
+                  htmlFor="owner"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Users Who Have Access
+                </label>
+                <div className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                  <ul className="flex flex-col">
+                    {row.original.data?.readers?.map((item) => {
+                      return (
+                        <div key={item} className="flex flex-row flex-cols-2">
+                          <div className="flex flex-col grow">
+                            <small>{item}</small>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </ul>
+                      );
+                    })}
+                  </ul>
+                </div>
               </div>
-            </div>
+            ) : undefined}
             <div className="mb-5 relative w-full max-w-xl">
               <label
                 htmlFor="inventor"
@@ -398,156 +402,159 @@ export const View = ({ row, onClose, requests }) => {
               />
             </div>
 
-            <div className="relative w-full max-w-xl">
-              <div className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <Download
-                  documentId={row.original.key}
-                  filename={filename}
-                  url={url}
-                  encrypted={encrypted}
-                />
-                {filename != null ? (
-                  <div className="relative w-full max-w-xl">
-                    <div className="flex items-center my-3">
-                      <input
-                        checked={encrypted}
-                        readOnly
-                        id="checked-checkbox"
-                        type="checkbox"
-                        value=""
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                      />
-                      <label
-                        htmlFor="checked-checkbox"
-                        className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                      >
-                        Encrypted
-                      </label>
-                    </div>
-                    {encrypted ? (
-                      <>
-                        <div className="mb-5 relative w-full max-w-xl">
-                          <label
-                            htmlFor="decryptionDate"
-                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                          >
-                            Decryption Date
-                          </label>
-                          <input
-                            id="decryptionDate"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            required
-                            placeholder="Decryption Notification Date"
-                            type="date"
-                            value={publicDate}
-                            readOnly
-                          />
-                        </div>
-                      </>
-                    ) : undefined}
-                  </div>
-                ) : undefined}
-              </div>
+            {hasAccess ? (
               <div className="relative w-full max-w-xl">
-                <label
-                  htmlFor="decryptionDate"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Activity
-                </label>
                 <div className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  <ul className="flex flex-col">
-                    {activity.items?.map((item) => {
-                      const corresponding = docRequests.find(
-                        (req) =>
-                          req.data.documentId === item.data.documentId &&
-                          req.key === item.key
-                      );
-                      return (
-                        <div
-                          key={item.key}
-                          className="flex flex-row flex-cols-2"
+                  <Download
+                    documentId={row.original.key}
+                    filename={filename}
+                    url={url}
+                    encrypted={encrypted}
+                  />
+                  {filename != null ? (
+                    <div className="relative w-full max-w-xl">
+                      <div className="flex items-center my-3">
+                        <input
+                          checked={encrypted}
+                          readOnly
+                          id="checked-checkbox"
+                          type="checkbox"
+                          value=""
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label
+                          htmlFor="checked-checkbox"
+                          className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                         >
-                          <div className="flex flex-col grow">
-                            {item.data.action}
-                            {item.data.owner === user.key && corresponding ? (
-                              <>
-                                <div className="flex flex-row">
-                                  <small>{corresponding.data.user}</small>
-                                </div>
-                                <div className="flex flex-row">
-                                  <button
-                                    type="button"
-                                    disabled={requesting}
-                                    className={`inline-block gap-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 ${
-                                      requesting
-                                        ? "opacity-25"
-                                        : "hover:bg-green-600 dark:hover:bg-green-300 dark:hover:text-black active:bg-green-400 dark:active:bg-green-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
-                                    }`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      approveRequest(true, {
-                                        item,
-                                        corresponding,
-                                      });
-                                    }}
-                                  >
-                                    <FaCheck className="inline-block" /> Approve
-                                  </button>
-                                  <button
-                                    type="button"
-                                    disabled={requesting}
-                                    className={`inline-block gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 ${
-                                      requesting
-                                        ? "opacity-25"
-                                        : "hover:bg-red-600 dark:hover:bg-red-300 dark:hover:text-black active:bg-red-400 dark:active:bg-red-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
-                                    }`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      approveRequest(false, {
-                                        item,
-                                        corresponding,
-                                      });
-                                    }}
-                                  >
-                                    <FaX className="inline-block" /> Reject
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              ""
-                            )}
+                          Encrypted
+                        </label>
+                      </div>
+                      {encrypted ? (
+                        <>
+                          <div className="mb-5 relative w-full max-w-xl">
+                            <label
+                              htmlFor="decryptionDate"
+                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            >
+                              Decryption Date
+                            </label>
+                            <input
+                              id="decryptionDate"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                              required
+                              placeholder="Decryption Notification Date"
+                              type="date"
+                              value={publicDate}
+                              readOnly
+                            />
                           </div>
-                          <small className="inline-block flex flex-col w-[18em] text-right">
-                            <span>
-                              {corresponding == null &&
-                              item.owner === user.key ? (
+                        </>
+                      ) : undefined}
+                    </div>
+                  ) : undefined}
+                </div>
+                <div className="relative w-full max-w-xl">
+                  <label
+                    htmlFor="decryptionDate"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Activity
+                  </label>
+                  <div className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <ul className="flex flex-col">
+                      {activity.items?.map((item) => {
+                        const corresponding = docRequests.find(
+                          (req) =>
+                            req.data.documentId === item.data.documentId &&
+                            req.key === item.key
+                        );
+                        return (
+                          <div
+                            key={item.key}
+                            className="flex flex-row flex-cols-2"
+                          >
+                            <div className="flex flex-col grow">
+                              {item.data.action}
+                              {item.data.owner === user.key && corresponding ? (
                                 <>
-                                  <FaMedal className="inline-block align-middle" />{" "}
-                                  ME
+                                  <div className="flex flex-row">
+                                    <small>{corresponding.data.user}</small>
+                                  </div>
+                                  <div className="flex flex-row">
+                                    <button
+                                      type="button"
+                                      disabled={requesting}
+                                      className={`inline-block gap-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 ${
+                                        requesting
+                                          ? "opacity-25"
+                                          : "hover:bg-green-600 dark:hover:bg-green-300 dark:hover:text-black active:bg-green-400 dark:active:bg-green-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                                      }`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        approveRequest(true, {
+                                          item,
+                                          corresponding,
+                                        });
+                                      }}
+                                    >
+                                      <FaCheck className="inline-block" />{" "}
+                                      Approve
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={requesting}
+                                      className={`inline-block gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 ${
+                                        requesting
+                                          ? "opacity-25"
+                                          : "hover:bg-red-600 dark:hover:bg-red-300 dark:hover:text-black active:bg-red-400 dark:active:bg-red-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                                      }`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        approveRequest(false, {
+                                          item,
+                                          corresponding,
+                                        });
+                                      }}
+                                    >
+                                      <FaX className="inline-block" /> Reject
+                                    </button>
+                                  </div>
                                 </>
                               ) : (
                                 ""
-                              )}{" "}
-                              at <DisplayDate value={item.created_at} long />
-                            </span>
-                          </small>
-                        </div>
-                      );
-                    })}
-                  </ul>
+                              )}
+                            </div>
+                            <small className="inline-block flex flex-col w-[18em] text-right">
+                              <span>
+                                {corresponding == null &&
+                                item.owner === user.key ? (
+                                  <>
+                                    <FaMedal className="inline-block align-middle" />{" "}
+                                    ME
+                                  </>
+                                ) : (
+                                  ""
+                                )}{" "}
+                                at <DisplayDate value={item.created_at} long />
+                              </span>
+                            </small>
+                          </div>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+                <div className="flex my-4">
+                  <button
+                    className="py-1 px-8 hover:text-blue-600 active:text-blue-400"
+                    type="button"
+                    onClick={onClose}
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
-              <div className="flex my-4">
-                <button
-                  className="py-1 px-8 hover:text-blue-600 active:text-blue-400"
-                  type="button"
-                  onClick={onClose}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
+            ) : undefined}
           </form>
           <Backdrop />
         </>
