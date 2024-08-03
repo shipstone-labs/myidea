@@ -96,7 +96,7 @@ export async function decryptFile(
   if (!passPhrase) {
     return url;
   }
-  const cipherbytesRaw = await fetch(url, { "no-cors": true })
+  const cipherbytesRaw = await fetch(url)
     .then((res) => {
       if (!res.ok) {
         throw new Error("Network response was not ok");

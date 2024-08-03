@@ -7,7 +7,14 @@ export default defineDevConfig(() => ({
       db: [
         {
           collection: "notes",
-          read: "managed",
+          read: "public",
+          write: "managed",
+          memory: "stable",
+          mutablePermissions: true,
+        },
+        {
+          collection: "activity",
+          read: "public",
           write: "managed",
           memory: "stable",
           mutablePermissions: true,
@@ -16,7 +23,7 @@ export default defineDevConfig(() => ({
       storage: [
         {
           collection: "images",
-          read: "managed",
+          read: "public",
           write: "managed",
           memory: "stable",
           mutablePermissions: true,
