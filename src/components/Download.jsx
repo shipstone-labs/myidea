@@ -36,6 +36,7 @@ export const Download = ({
         collection: "activity",
         doc: {
           key: nanoid(),
+          description: documentId,
           data: {
             documentId,
             user: user.key,
@@ -61,6 +62,7 @@ export const Download = ({
         collection: "activity",
         doc: {
           key: nanoid(),
+          description: documentId,
           data: {
             documentId,
             user: user.key,
@@ -97,6 +99,7 @@ export const Download = ({
               collection: "activity",
               doc: {
                 key: nanoid(),
+                description: documentId,
                 data: {
                   documentId,
                   user: user.key,

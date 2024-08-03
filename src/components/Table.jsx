@@ -23,6 +23,7 @@ import {
 } from "react-icons/fa";
 import { Listbox, ListboxOptions, Transition } from "@headlessui/react";
 import { DisplayDate } from "./View.jsx";
+import { FaMedal } from "react-icons/fa6";
 
 export function Avatar({ src, alt = "avatar", large = false }) {
   return (
@@ -35,6 +36,27 @@ export function Avatar({ src, alt = "avatar", large = false }) {
 }
 
 const getColumns = () => [
+  {
+    Header: "Owner",
+    accessor: "owner",
+    Cell: ({ value }) => {
+      const { user } = useContext(AuthContext);
+      return (
+        <span>
+          {value === user.key ? (
+            <span title={value}>
+              <FaMedal className="inline-block align-middle" /> ME
+            </span>
+          ) : (
+            <span title={value}>
+              &nbsp;
+              <FaMedal className="inline-block align-middle" /> someone else
+            </span>
+          )}
+        </span>
+      );
+    },
+  },
   {
     Header: "Created At",
     accessor: "created_at",
@@ -106,8 +128,8 @@ const getColumns = () => [
           ? _encrypted
           : (url || filename || "").endsWith(".enc");
       return url && filename ? (
-        <div>
-          {filename} ({mimeType}, {encrypted ? "encrypted" : "plain"})
+        <div title={`url=${url}, filename=${filename}`}>
+          {mimeType}, {encrypted ? "encrypted" : "plain"}
         </div>
       ) : undefined;
     },

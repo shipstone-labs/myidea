@@ -60,6 +60,19 @@ export const Modal = () => {
       let imageFilename;
 
       const key = nanoid();
+
+      await setDoc({
+        collection: "activity",
+        doc: {
+          key: nanoid(),
+          description: key,
+          data: {
+            documentId: key,
+            user: user.key,
+            action: "creating idea",
+          },
+        },
+      });
       if (thumbnail !== undefined) {
         const extension = thumbnail.name.split(".").pop();
         imageFilename = `${user.key}-${key}.thumbnail.${extension}`;
@@ -70,6 +83,18 @@ export const Modal = () => {
           filename: imageFilename,
         });
         image = downloadUrl;
+        await setDoc({
+          collection: "activity",
+          doc: {
+            key: nanoid(),
+            description: key,
+            data: {
+              documentId: key,
+              user: user.key,
+              action: "uploaded thumbnail",
+            },
+          },
+        });
       }
       let filename = undefined;
       if (file !== undefined) {
@@ -86,6 +111,18 @@ export const Modal = () => {
           filename,
         });
 
+        await setDoc({
+          collection: "activity",
+          doc: {
+            key: nanoid(),
+            description: key,
+            data: {
+              documentId: key,
+              user: user.key,
+              action: "uploaded document",
+            },
+          },
+        });
         url = downloadUrl;
       }
 
@@ -109,6 +146,19 @@ export const Modal = () => {
               ? BigInt(new Date(publicDate).getTime()) * 1000000n
               : null,
             ...(url !== undefined && { url }),
+          },
+        },
+      });
+
+      await setDoc({
+        collection: "activity",
+        doc: {
+          key: nanoid(),
+          description: key,
+          data: {
+            documentId: key,
+            user: user.key,
+            action: "created document",
           },
         },
       });
