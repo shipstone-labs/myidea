@@ -387,7 +387,10 @@ function Table1({ setFocusedRow, requests }) {
         Header: "Request",
         width: "30px",
         accessor: (row) => {
-          return requests ? row.key in requests : false;
+          return (
+            (requests?.[row.key] || []).length > 0 &&
+            user.key === row.original.owner
+          );
         },
         Cell: ({ value }) => {
           return value ? (
