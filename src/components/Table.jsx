@@ -29,8 +29,7 @@ import {
   Transition,
 } from "@headlessui/react";
 import { DisplayDate } from "./View.jsx";
-import { FaTriangleExclamation } from "react-icons/fa6";
-import { GiSelfLove } from "react-icons/gi";
+import { GiIncomingRocket, GiSelfLove } from "react-icons/gi";
 
 export function Avatar({ src, alt = "avatar", large = false }) {
   return (
@@ -359,11 +358,22 @@ function Table1({ setFocusedRow, requests }) {
   const list = useCallback(async () => {
     const { items } = await listDocs({
       collection: "notes",
-      filter: {},
+      filter: {
+        order: {
+          field: "created_at",
+          desc: true,
+        },
+      },
     });
-
+    let inventor = localStorage.getItem("inventor");
+    for (const { owner, data } of items) {
+      if (!inventor && owner === user.key) {
+        localStorage.setItem("inventor", data.inventor);
+        inventor = data.inventor;
+      }
+    }
     setItems(items);
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     window.addEventListener("reload", list);
@@ -385,30 +395,23 @@ function Table1({ setFocusedRow, requests }) {
   const columns = useMemo(
     () => [
       {
-        Header: "Request",
-        width: "30px",
-        accessor: (row) => {
-          return (
-            (requests?.[row.key] || []).length > 0 &&
-            user.key === row.original.owner
-          );
-        },
-        Cell: ({ value }) => {
-          return value ? (
-            <FaTriangleExclamation className="text-red-500" />
-          ) : undefined;
-        },
-      },
-      {
         Header: "Owner",
         accessor: "owner",
-        Cell: ({ value }) => {
+        Cell: ({ value, row }) => {
           const { user } = useContext(AuthContext);
+          const hasRequest =
+            (requests?.[row.key] || []).length > 0 &&
+            user.key === row.original.owner;
           return (
             <span>
               {value === user.key ? (
                 <span title={value}>
                   <GiSelfLove className="inline-block align-middle" />
+                  {hasRequest ? (
+                    <span>
+                      <GiIncomingRocket className="text-red-500" /> Req
+                    </span>
+                  ) : undefined}
                 </span>
               ) : undefined}
             </span>
@@ -419,14 +422,14 @@ function Table1({ setFocusedRow, requests }) {
         Header: "Created At",
         accessor: "created_at",
         Cell: ({ value }) => {
-          return <DisplayDate value={value} />;
+          return <DisplayDate value={value} long />;
         },
       },
       {
         Header: "Updated At",
         accessor: "updated_at",
         Cell: ({ value }) => {
-          return <DisplayDate value={value} />;
+          return <DisplayDate value={value} long />;
         },
       },
       {
@@ -435,7 +438,7 @@ function Table1({ setFocusedRow, requests }) {
         Cell: ({ row }) => {
           const value = row.original.data.decrypt_at;
 
-          return <DisplayDate value={value} />;
+          return <DisplayDate value={value} long />;
         },
       },
       {
@@ -558,7 +561,15 @@ function Table1({ setFocusedRow, requests }) {
     {
       columns,
       data,
-      initialState: { pageSize: 5 },
+      initialState: {
+        pageSize: 5,
+        sortBy: [
+          {
+            id: "created_at",
+            desc: true,
+          },
+        ],
+      },
     },
     useGlobalFilter,
     useSortBy,

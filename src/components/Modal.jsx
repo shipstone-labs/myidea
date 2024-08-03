@@ -17,7 +17,7 @@ export const Modal = () => {
   const [thumbnail, setThumbnail] = useState(undefined);
   const [encrypted, setEncrypted] = useState(false);
   const [title, setTitle] = useState("");
-  const [inventor, setInventor] = useState("");
+  const [inventor, setInventor] = useState(localStorage.getItem("inventor"));
   const [tags, setTags] = useState([]);
   const uploadElement = useRef(null);
   const thumbnailElement = useRef(null);
@@ -164,6 +164,8 @@ export const Modal = () => {
           },
         },
       });
+
+      localStorage.setItem("inventor", inventor);
 
       setShowModal(false);
       setDescription("");

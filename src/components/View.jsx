@@ -5,7 +5,7 @@ import { Backdrop } from "./Backdrop";
 import { TagsInput } from "react-tag-input-component";
 import { Avatar } from "./Table";
 import { Download } from "./Download";
-import { FaCopy, FaMedal } from "react-icons/fa";
+import { FaCopy } from "react-icons/fa";
 import { deleteDoc, listDocs, setDoc, setManyDocs } from "@junobuild/core";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -22,9 +22,14 @@ export const DisplayDate = ({ value, long }) => {
   }
   const title = date ? date.toISOString().replace(/Z$/, `${nano}Z`) : "";
   return (
-    <span title={title}>
-      {date ? (long ? date.toLocaleString() : date.toLocaleDateString()) : ""}
-    </span>
+    <div title={title}>
+      <div>{date ? date.toLocaleDateString() : ""}</div>
+      {long ? (
+        <div>
+          <small>{date ? date.toLocaleTimeString() : undefined}</small>
+        </div>
+      ) : undefined}
+    </div>
   );
 };
 
