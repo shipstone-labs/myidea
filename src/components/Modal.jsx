@@ -60,7 +60,8 @@ export const Modal = () => {
 
 			const key = nanoid();
 			if (thumbnail !== undefined) {
-				imageFilename = `${user.key}-${key}.thumbnail`;
+				const extension = thumbnail.name.split(".").pop();
+				imageFilename = `${user.key}-${key}.thumbnail.${extension}`;
 
 				const { downloadUrl } = await uploadFile({
 					collection: "images",
@@ -71,9 +72,12 @@ export const Modal = () => {
 			}
 			let filename = undefined;
 			if (file !== undefined) {
+				const extension = file.name.split(".").pop();
 				const finalFile = await encryptFile(file, passPhrase);
 
-				filename = passPhrase ? `${user.key}-${key}.enc` : key;
+				filename = passPhrase
+					? `${user.key}-${key}.${extension}.enc`
+					: `${key}.${extension}`;
 
 				const { downloadUrl } = await uploadFile({
 					collection: "images",
@@ -95,7 +99,8 @@ export const Modal = () => {
 						image,
 						mimeType: file !== undefined ? file.type : undefined,
 						encrypted,
-						text: description,
+						description,
+						inventor,
 						title,
 						tags,
 						shared: false,
@@ -115,6 +120,7 @@ export const Modal = () => {
 			setFile(undefined);
 			setTitle("");
 			setTags([]);
+			setInventor("");
 			setThumbnail(undefined);
 
 			reload();
@@ -137,7 +143,7 @@ export const Modal = () => {
 					width="20"
 					fill="currentColor"
 				>
-					<title>Add an entry</title>
+					<title>Add an Idea</title>
 					<path d="M417-417H166v-126h251v-251h126v251h251v126H543v251H417v-251Z" />
 				</svg>
 			</Button>
@@ -412,6 +418,7 @@ export const Modal = () => {
 										setFile(undefined);
 										setTitle("");
 										setTags([]);
+										setInventor("");
 										setThumbnail(undefined);
 									}}
 								>

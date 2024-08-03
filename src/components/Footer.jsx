@@ -76,7 +76,7 @@ export const Footer = () => {
 				</a>
 
 				<a
-					href="https://github.com/shipstone-labs"
+					href="https://github.com/shipstone-labs/myidea"
 					aria-label="Shipstone Labs on GitHub"
 					className="hover:text-lavender-blue-500 active:text-lavender-blue-400"
 					target="_blank"

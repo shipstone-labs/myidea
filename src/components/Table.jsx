@@ -68,7 +68,8 @@ const getColumns = () => [
 	{
 		Header: "Decrypt At",
 		accessor: "decrypt_at",
-		Cell: ({ value }) => {
+		Cell: ({ row }) => {
+			const value = row.original.data.decrypt_at;
 			const date = value ? new Date(Number(BigInt(value) / 1000000n)) : "";
 			let nano = value ? Number(value % 1000000n) : 0;
 			while (nano.length < 6) {
@@ -80,19 +81,17 @@ const getColumns = () => [
 	},
 	{
 		Header: "Inventor",
-		accessor: "data.inventor",
-		Cell: ({ value }) => {
+		Cell: ({ row }) => {
 			return (
 				<div className="flex gap-2 items-center">
-					<div>{value}</div>
+					<div>{row.original.data.inventor}</div>
 				</div>
 			);
 		},
 	},
 	{
 		Header: "Title",
-		accessor: "data.title",
-		Cell: ({ row, value }) => {
+		Cell: ({ row }) => {
 			return (
 				<div
 					className="flex gap-2 items-center"
@@ -100,16 +99,25 @@ const getColumns = () => [
 				>
 					<Avatar
 						src={row.original.data.image || "/lightbulb-custom.png"}
-						alt={`${value}'s Image`}
+						alt={`${row.original.data.title}'s Image`}
 					/>
-					<div>{value}</div>
+					<div>{row.original.data.title}</div>
+				</div>
+			);
+		},
+	},
+	{
+		Header: "Description",
+		Cell: ({ row }) => {
+			return (
+				<div className="flex gap-2 items-center">
+					<div>{row.original.data?.description}</div>
 				</div>
 			);
 		},
 	},
 	{
 		Header: "File",
-		accessor: "data.filename",
 		Cell: ({ row }) => {
 			const {
 				url,
@@ -133,15 +141,23 @@ const getColumns = () => [
 	},
 	{
 		Header: "Tags",
-		accessor: "data.tags",
-		Cell: ({ value }) => {
+		Cell: ({ row }) => {
+			const value = row.original.data.tags;
 			return <div>{(value || []).join(", ")}</div>;
 		},
 	},
 	{
 		Header: "Delete",
 		Cell: ({ row }) => {
-			return <Delete id={row.original} />;
+			return (
+				<Delete
+					item={row.original}
+					reload={() => {
+						const event = new Event("reload");
+						window.dispatchEvent(event);
+					}}
+				/>
+			);
 		},
 	},
 ];
@@ -366,6 +382,7 @@ function TableComponent({
 	rows,
 	prepareRow,
 }) {
+	const { user } = useContext(AuthContext);
 	return (
 		<div className="w-full min-w-[30rem] p-4 rounded-xl shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
 			<table {...getTableProps()}>
@@ -411,7 +428,11 @@ function TableComponent({
 									return (
 										<td
 											{...cell.getCellProps()}
-											className="p-3 text-sm font-normal text-gray-700 first:rounded-l-lg last:rounded-r-lg"
+											className={
+												row.original.owner === user.key
+													? "p-3 text-sm font-normal text-green-700 first:rounded-l-lg last:rounded-r-lg"
+													: "p-3 text-sm font-normal text-gray-700 first:rounded-l-lg last:rounded-r-lg"
+											}
 										>
 											{cell.render("Cell")}
 										</td>

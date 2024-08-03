@@ -54,7 +54,7 @@ export const Delete = ({ item, reload }) => {
 				role="cell"
 				type="button"
 				className="hover:text-lavender-blue-500 active:text-lavender-blue-400"
-				onClick={async () => await delItem(item)}
+				onClick={async () => confirm("Are you sure?") && (await delItem(item))}
 			>
 				<svg
 					width="16"
