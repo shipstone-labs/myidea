@@ -408,7 +408,7 @@ function Table1({ setFocusedRow, requests }) {
                 <span title={value}>
                   <GiSelfLove className="inline-block align-middle" />
                   {hasRequest ? (
-                    <span className="ms-2">
+                    <span className="ms-2 border border-gray-300 p-0.5 rounded-lg">
                       <GiIncomingRocket className="text-red-500 inline-block" />{" "}
                       Request
                     </span>
