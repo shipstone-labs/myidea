@@ -406,12 +406,7 @@ function Table1({ setFocusedRow, requests }) {
                 <span title={value}>
                   <FaMedal className="inline-block align-middle" /> ME
                 </span>
-              ) : (
-                <span title={value}>
-                  &nbsp;
-                  <FaMedal className="inline-block align-middle" /> someone else
-                </span>
-              )}
+              ) : undefined}
             </span>
           );
         },
