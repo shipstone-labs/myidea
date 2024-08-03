@@ -174,6 +174,7 @@ export const Modal = () => {
       setFile(undefined);
       setTitle("");
       setTags([]);
+      setEncrypted(false);
       setInventor("");
       setThumbnail(undefined);
 
@@ -300,7 +301,7 @@ export const Modal = () => {
                 htmlFor="description"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
-                Title
+                Description
               </label>
               <textarea
                 id="description"
@@ -465,6 +466,7 @@ export const Modal = () => {
                     setTitle("");
                     setTags([]);
                     setInventor("");
+                    setEncrypted(false);
                     setThumbnail(undefined);
                   }}
                 >

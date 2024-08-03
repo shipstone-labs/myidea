@@ -9,7 +9,7 @@ export async function readFile(file) {
 }
 
 export async function encryptFile(objFile, passPhrase = undefined) {
-  if (passPhrase !== undefined) {
+  if (passPhrase != null) {
     const arrayBuffer = await readFile(objFile).catch((err) => {
       console.error(err);
       throw new Error("Error reading file");

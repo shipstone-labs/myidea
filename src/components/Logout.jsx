@@ -6,8 +6,8 @@ import { FaPerson } from "react-icons/fa6";
 export const Logout = ({ user }) => {
   return (
     <div className="mt-24">
-      <span>
-        ME <FaPerson className="inline-block align-middle" /> {user}{" "}
+      <span title={user}>
+        ME <FaPerson className="inline-block align-middle" />
         <CopyToClipboardButton content={user} />
       </span>
       <button
