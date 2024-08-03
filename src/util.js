@@ -29,7 +29,6 @@ export async function encryptFile(objFile, passPhrase = undefined) {
         console.error(err);
         throw err;
       });
-    console.log("passphrasekey imported");
 
     const pbkdf2bytesRaw = await window.crypto.subtle
       .deriveBits(
@@ -47,8 +46,6 @@ export async function encryptFile(objFile, passPhrase = undefined) {
         throw err;
       });
 
-    console.log("pbkdf2bytes derived");
-
     const pbkdf2bytes = new Uint8Array(pbkdf2bytesRaw);
 
     const keybytes = pbkdf2bytes.slice(0, 32);
@@ -63,16 +60,12 @@ export async function encryptFile(objFile, passPhrase = undefined) {
         throw err;
       });
 
-    console.log("key imported");
-
     const cipherbytesRaw = await window.crypto.subtle
       .encrypt({ name: "AES-CBC", iv: ivbytes }, key, plaintextbytes)
       .catch((err) => {
         console.error(err);
         throw err;
       });
-
-    console.log("plaintext encrypted");
     const cipherbytes = new Uint8Array(cipherbytesRaw);
 
     const resultbytes = new Uint8Array(cipherbytes.length + 16);
@@ -122,7 +115,6 @@ export async function decryptFile(
       console.error(err);
       throw err;
     });
-  console.log("passphrasekey imported");
 
   const pbkdf2bytesRaw = await window.crypto.subtle
     .deriveBits(
@@ -140,8 +132,6 @@ export async function decryptFile(
       throw err;
     });
 
-  console.log("pbkdf2bytes derived");
-
   const pbkdf2bytes = new Uint8Array(pbkdf2bytesRaw);
 
   const keybytes = pbkdf2bytes.slice(0, 32);
@@ -156,7 +146,6 @@ export async function decryptFile(
       console.error(err);
       throw err;
     });
-  console.log("key imported");
 
   const plaintextbytesRaw = await window.crypto.subtle
     .decrypt({ name: "AES-CBC", iv: ivbytes }, key, cipherbytesReal)

@@ -6,25 +6,31 @@ import { TagsInput } from "react-tag-input-component";
 import { Avatar } from "./Table";
 import { Download } from "./Download";
 import { FaCopy, FaMedal } from "react-icons/fa";
-import { listDocs } from "@junobuild/core";
+import { deleteDoc, listDocs, setDoc, setManyDocs } from "@junobuild/core";
 import { useState } from "react";
 import { useEffect } from "react";
+import { FaCheck, FaX } from "react-icons/fa6";
+import { useCallback } from "react";
+import { nanoid } from "nanoid";
 
-export const DisplayDate = ({ value }) => {
+export const DisplayDate = ({ value, long }) => {
   const date = value ? new Date(Number(BigInt(value) / 1000000n)) : "";
   let nano = value ? Number(value % 1000000n) : 0;
   while (nano.length < 6) {
     nano = `0${nano}`;
   }
   const title = date ? date.toISOString().replace(/Z$/, `${nano}Z`) : "";
-  return <span title={title}>{date ? date.toLocaleDateString() : ""}</span>;
+  return (
+    <span title={title}>
+      {date ? (long ? date.toLocaleString() : date.toLocaleDateString()) : ""}
+    </span>
+  );
 };
 
 export const CopyToClipboardButton = ({ content }) => {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(content);
-      console.log("Copied to clipboard:", content);
     } catch (error) {
       console.error("Unable to copy to clipboard:", error);
     }
@@ -42,7 +48,7 @@ export const CopyToClipboardButton = ({ content }) => {
   );
 };
 
-export const View = ({ row, onClose }) => {
+export const View = ({ row, onClose, requests }) => {
   const { user } = useContext(AuthContext);
   const {
     data: {
@@ -58,6 +64,7 @@ export const View = ({ row, onClose }) => {
     } = {},
     key,
   } = row?.original || {};
+  const docRequests = requests?.[key] || [];
   const publicDate = decrypt_at
     ? new Date(Number(BigInt(decrypt_at) / 1000000n))
         .toISOString()
@@ -75,6 +82,10 @@ export const View = ({ row, onClose }) => {
           matcher: {
             description: key,
           },
+          order: {
+            field: "created_at",
+            desc: false,
+          },
         },
       }).catch((error) => {
         console.error(error);
@@ -89,6 +100,113 @@ export const View = ({ row, onClose }) => {
       setActivity(activity);
     })();
   }, [key]);
+  const [requesting, setRequesting] = useState(false);
+  const requestAccess = useCallback(
+    async (e) => {
+      e.stopPropagation();
+      if (
+        !row?.original?.readers?.includes(user.key) &&
+        true // row.original.owner !== user.key
+      ) {
+        setRequesting(true);
+        try {
+          const key = nanoid();
+          await setDoc({
+            collection: "requests",
+            doc: {
+              key,
+              description: `${row.original.owner}:${user.key}`,
+              data: {
+                documentId: row.original.key,
+                user: user.key,
+                action: "request access",
+              },
+            },
+          });
+          await setDoc({
+            collection: "activity",
+            doc: {
+              key,
+              description: row.original.key,
+              data: {
+                documentId: row.original.key,
+                user: user.key,
+                owner: row.original.owner,
+                action: "request access to document",
+              },
+            },
+          });
+        } finally {
+          setRequesting(false);
+        }
+        onClose();
+      }
+    },
+    [row, user.key, onClose]
+  );
+  const approveRequest = useCallback(
+    async (approve, { item, corresponding }) => {
+      const { data: { user } = {} } = item;
+      setRequesting(true);
+      try {
+        await setManyDocs({
+          docs: [
+            {
+              collection: "notes",
+              doc: {
+                ...row.original,
+                data: {
+                  ...row.original.data,
+                  // Dumb and simple "set" handling.
+                  readers: approve
+                    ? [...(row.original.data.readers || []), user]
+                        .filter((item) => item != null)
+                        .reduce((acc, item) => {
+                          if (acc.includes(item)) {
+                            return acc;
+                          }
+                          acc.push(item);
+                          return acc;
+                        }, [])
+                    : (row.original.data.readers || [])
+                        .filter((item) => item !== user && item != null)
+                        .reduce((acc, item) => {
+                          if (acc.includes(item)) {
+                            return acc;
+                          }
+                          acc.push(item);
+                          return acc;
+                        }, []),
+                },
+              },
+            },
+            {
+              collection: "activity",
+              doc: {
+                key: nanoid(),
+                data: {
+                  ...corresponding.data,
+                  action: approve ? "request approved" : "request rejected",
+                },
+              },
+            },
+          ],
+        });
+        await deleteDoc({
+          collection: "requests",
+          doc: corresponding,
+        });
+        onClose();
+      } catch (err) {
+        console.error(err);
+        alert(err.message);
+      } finally {
+        window.dispatchEvent(new Event("reload"));
+        setRequesting(false);
+      }
+    },
+    [row, onClose]
+  );
   return (
     <>
       {row ? (
@@ -131,6 +249,64 @@ export const View = ({ row, onClose }) => {
                   )}
                 </span>
                 <CopyToClipboardButton content={row.original.owner} />
+              </div>
+            </div>
+            <div className="mb-5 relative w-full max-w-xl">
+              <label
+                htmlFor="owner"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Have Access
+              </label>
+              <div className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <span id="owner" title={row.original.owner}>
+                  {row.original.owner === user.key ||
+                  row.original.readers?.includes(user.key) ? (
+                    <span>
+                      &nbsp;
+                      <FaCheck className="inline-block align-middle" /> Yes{" "}
+                    </span>
+                  ) : (
+                    <span>
+                      &nbsp;
+                      <FaX className="inline-block align-middle" /> No{" "}
+                    </span>
+                  )}
+                  {!requests[row.original.key]?.some(
+                    (item) => item.data.user === user.key
+                  ) ? (
+                    <button
+                      onClick={requestAccess}
+                      type="button"
+                      disabled={requesting}
+                      className="inline-block gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800  hover:bg-blue-600 dark:hover:bg-blue-300 dark:hover:text-black active:bg-blue-400 dark:active:bg-blue-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                    >
+                      Request
+                    </button>
+                  ) : undefined}
+                </span>
+                <CopyToClipboardButton content={row.original.owner} />
+              </div>
+            </div>
+            <div className="mb-5 relative w-full max-w-xl">
+              <label
+                htmlFor="owner"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Users Who Have Access
+              </label>
+              <div className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <ul className="flex flex-col">
+                  {row.original.data?.readers?.map((item) => {
+                    return (
+                      <div key={item} className="flex flex-row flex-cols-2">
+                        <div className="flex flex-col grow">
+                          <small>{item}</small>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </ul>
               </div>
             </div>
             <div className="mb-5 relative w-full max-w-xl">
@@ -272,26 +448,75 @@ export const View = ({ row, onClose }) => {
                   Activity
                 </label>
                 <div className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  <ul>
+                  <ul className="flex flex-col">
                     {activity.items?.map((item) => {
+                      const corresponding = docRequests.find(
+                        (req) =>
+                          req.data.documentId === item.data.documentId &&
+                          req.key === item.key
+                      );
                       return (
-                        <li key={item.key}>
-                          <span>
-                            {item.owner}{" "}
-                            {item.owner === user.key ? (
-                              <span>
-                                &nbsp;
-                                <FaMedal className="inline-block align-middle" />{" "}
-                                ME
-                              </span>
+                        <div
+                          key={item.key}
+                          className="flex flex-row flex-cols-2"
+                        >
+                          <div className="flex flex-col grow">
+                            {item.data.action}
+                            {item.data.owner === user.key && corresponding ? (
+                              <>
+                                <div className="flex flex-row">
+                                  <small>{corresponding.data.user}</small>
+                                </div>
+                                <div className="flex flex-row">
+                                  <button
+                                    type="button"
+                                    disabled={requesting}
+                                    className="flex items-center gap-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 hover:bg-green-600 dark:hover:bg-green-300 dark:hover:text-black active:bg-green-400 dark:active:bg-green-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      approveRequest(true, {
+                                        item,
+                                        corresponding,
+                                      });
+                                    }}
+                                  >
+                                    <FaCheck /> Approve
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={requesting}
+                                    className="flex items-center gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 hover:bg-red-600 dark:hover:bg-red-300 dark:hover:text-black active:bg-red-400 dark:active:bg-red-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      approveRequest(false, {
+                                        item,
+                                        corresponding,
+                                      });
+                                    }}
+                                  >
+                                    <FaX /> Reject
+                                  </button>
+                                </div>
+                              </>
                             ) : (
                               ""
-                            )}{" "}
-                            on <DisplayDate value={item.created_at} />
-                          </span>
-                          &nbsp;&nbsp;
-                          {item.data.action}
-                        </li>
+                            )}
+                          </div>
+                          <small className="inline-block flex flex-col w-[18em] text-right">
+                            <span>
+                              {corresponding == null &&
+                              item.owner === user.key ? (
+                                <>
+                                  <FaMedal className="inline-block align-middle" />{" "}
+                                  ME
+                                </>
+                              ) : (
+                                ""
+                              )}{" "}
+                              at <DisplayDate value={item.created_at} long />
+                            </span>
+                          </small>
+                        </div>
                       );
                     })}
                   </ul>

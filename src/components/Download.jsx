@@ -45,12 +45,10 @@ export const Download = ({
             action: "download started",
           },
         },
-      })
-        .catch((err) => {
-          console.error(err);
-          setError(err.message);
-        })
-        .then(console.log);
+      }).catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
 
       const file = await decryptFile(url, passPhrase, filename, mimeType).catch(
         (err) => {
@@ -73,13 +71,10 @@ export const Download = ({
             action: "download success",
           },
         },
-      })
-        .catch((err) => {
-          console.error(err);
-          setError(err.message);
-        })
-
-        .then(console.log);
+      }).catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
 
       setShowModal(false);
       setPassPhrase("");
@@ -110,12 +105,10 @@ export const Download = ({
                   action: "download success",
                 },
               },
-            })
-              .catch((err) => {
-                console.error(err);
-                setError(err.message);
-              })
-              .then(console.log);
+            }).catch((err) => {
+              console.error(err);
+              setError(err.message);
+            });
             downloadElement.current.href = url;
             downloadElement.current.download = filename;
             downloadElement.current.click();

@@ -3,11 +3,8 @@ import { useEffect } from "react";
 import { Auth } from "./components/Auth";
 import { Background } from "./components/Background";
 import { Footer } from "./components/Footer";
-import { Modal } from "./components/Modal";
-import { Table } from "./components/Table";
 import { FaLightbulb } from "react-icons/fa";
-import { useState } from "react";
-import { View } from "./components/View";
+import { MainView } from "./components/MainView";
 
 function App() {
   useEffect(() => {
@@ -18,7 +15,6 @@ function App() {
         },
       }))();
   }, []);
-  const [focusedRow, setFocusedRow] = useState(null);
 
   return (
     <>
@@ -32,9 +28,7 @@ function App() {
           </p>
 
           <Auth>
-            <Table setFocusedRow={setFocusedRow} />
-            <Modal />
-            <View row={focusedRow} onClose={() => setFocusedRow(null)} />
+            <MainView />
           </Auth>
         </main>
 

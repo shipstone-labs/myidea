@@ -19,6 +19,13 @@ export default defineDevConfig(() => ({
           memory: "stable",
           mutablePermissions: true,
         },
+        {
+          collection: "requests",
+          read: "public",
+          write: "managed",
+          memory: "stable",
+          mutablePermissions: true,
+        },
       ],
       storage: [
         {

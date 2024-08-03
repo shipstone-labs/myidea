@@ -21,9 +21,15 @@ import {
   FaSortUp,
   FaSortDown,
 } from "react-icons/fa";
-import { Listbox, ListboxOptions, Transition } from "@headlessui/react";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+  Transition,
+} from "@headlessui/react";
 import { DisplayDate } from "./View.jsx";
-import { FaMedal } from "react-icons/fa6";
+import { FaMedal, FaTriangleExclamation } from "react-icons/fa6";
 
 export function Avatar({ src, alt = "avatar", large = false }) {
   return (
@@ -34,128 +40,6 @@ export function Avatar({ src, alt = "avatar", large = false }) {
     />
   );
 }
-
-const getColumns = () => [
-  {
-    Header: "Owner",
-    accessor: "owner",
-    Cell: ({ value }) => {
-      const { user } = useContext(AuthContext);
-      return (
-        <span>
-          {value === user.key ? (
-            <span title={value}>
-              <FaMedal className="inline-block align-middle" /> ME
-            </span>
-          ) : (
-            <span title={value}>
-              &nbsp;
-              <FaMedal className="inline-block align-middle" /> someone else
-            </span>
-          )}
-        </span>
-      );
-    },
-  },
-  {
-    Header: "Created At",
-    accessor: "created_at",
-    Cell: ({ value }) => {
-      return <DisplayDate value={value} />;
-    },
-  },
-  {
-    Header: "Updated At",
-    accessor: "updated_at",
-    Cell: ({ value }) => {
-      return <DisplayDate value={value} />;
-    },
-  },
-  {
-    Header: "Decrypt At",
-    accessor: "decrypt_at",
-    Cell: ({ row }) => {
-      const value = row.original.data.decrypt_at;
-
-      return <DisplayDate value={value} />;
-    },
-  },
-  {
-    Header: "Inventor",
-    Cell: ({ row }) => {
-      return (
-        <div className="flex gap-2 items-center">
-          <div>{row.original.data.inventor}</div>
-        </div>
-      );
-    },
-  },
-  {
-    Header: "Title",
-    Cell: ({ row }) => {
-      return (
-        <div
-          className="flex gap-2 items-center"
-          title={row.original.description}
-        >
-          <Avatar
-            src={row.original.data.image || "/lightbulb-custom.png"}
-            alt={`${row.original.data.title}'s Image`}
-          />
-          <div>{row.original.data.title}</div>
-        </div>
-      );
-    },
-  },
-  {
-    Header: "Description",
-    Cell: ({ row }) => {
-      return (
-        <div className="flex gap-2 items-center">
-          <div>{row.original.data?.description}</div>
-        </div>
-      );
-    },
-  },
-  {
-    Header: "File",
-    Cell: ({ row }) => {
-      const {
-        data: { url, filename, mimeType, encrypted: _encrypted },
-      } = row.original;
-      const encrypted =
-        _encrypted != null
-          ? _encrypted
-          : (url || filename || "").endsWith(".enc");
-      return url && filename ? (
-        <div title={`url=${url}, filename=${filename}`}>
-          {mimeType}, {encrypted ? "encrypted" : "plain"}
-        </div>
-      ) : undefined;
-    },
-  },
-  {
-    Header: "Tags",
-    Cell: ({ row }) => {
-      const value = row.original.data.tags;
-      return <div>{(value || []).join(", ")}</div>;
-    },
-  },
-  {
-    Header: "Delete",
-    Cell: ({ row }) => {
-      return (
-        <Delete
-          item={row.original}
-          reload={() => {
-            const event = new Event("reload");
-            window.dispatchEvent(event);
-          }}
-        />
-      );
-    },
-  },
-];
 
 function InputGroup7({
   label,
@@ -222,7 +106,7 @@ function SelectMenu1({ value, setValue, options, className = "", disabled }) {
   return (
     <Listbox value={value} onChange={setValue} disabled={disabled}>
       <div className={`relative w-full ${className}`}>
-        <Listbox.Button
+        <ListboxButton
           className={`relative w-full  rounded-xl py-3 pl-3 pr-10 text-base text-gray-700 text-left shadow-[0_4px_10px_rgba(0,0,0,0.03)] focus:outline-none
           ${
             disabled
@@ -240,16 +124,16 @@ function SelectMenu1({ value, setValue, options, className = "", disabled }) {
               aria-hidden="true"
             />
           </span>
-        </Listbox.Button>
+        </ListboxButton>
         <Transition
           as={Fragment}
           leave="transition ease-in duration-100"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl text-base shadow-[0_4px_10px_rgba(0,0,0,0.03)] focus:outline-none">
+          <ListboxOptions className="absolute bg-white dark:bg-black z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl text-base shadow-[0_4px_10px_rgba(0,0,0,0.03)] focus:outline-none">
             {options.map((option) => (
-              <ListboxOptions
+              <ListboxOption
                 key={option.id}
                 className={({ active }) =>
                   `relative cursor-default select-none py-3 pl-10 pr-4 ${
@@ -274,7 +158,7 @@ function SelectMenu1({ value, setValue, options, className = "", disabled }) {
                     ) : null}
                   </>
                 )}
-              </ListboxOptions>
+              </ListboxOption>
             ))}
           </ListboxOptions>
         </Transition>
@@ -467,7 +351,7 @@ function TableComponent({
   );
 }
 
-function Table1({ setFocusedRow }) {
+function Table1({ setFocusedRow, requests }) {
   const { user } = useContext(AuthContext);
   const [data, setItems] = useState([]);
 
@@ -497,7 +381,158 @@ function Table1({ setFocusedRow }) {
     (async () => await list())();
   }, [user, list]);
 
-  const columns = useMemo(getColumns, []);
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Request",
+        width: "30px",
+        accessor: (row) => {
+          return requests ? row.key in requests : false;
+        },
+        Cell: ({ value }) => {
+          return value ? (
+            <FaTriangleExclamation className="text-red-500" />
+          ) : undefined;
+        },
+      },
+      {
+        Header: "Owner",
+        accessor: "owner",
+        Cell: ({ value }) => {
+          const { user } = useContext(AuthContext);
+          return (
+            <span>
+              {value === user.key ? (
+                <span title={value}>
+                  <FaMedal className="inline-block align-middle" /> ME
+                </span>
+              ) : (
+                <span title={value}>
+                  &nbsp;
+                  <FaMedal className="inline-block align-middle" /> someone else
+                </span>
+              )}
+            </span>
+          );
+        },
+      },
+      {
+        Header: "Created At",
+        accessor: "created_at",
+        Cell: ({ value }) => {
+          return <DisplayDate value={value} />;
+        },
+      },
+      {
+        Header: "Updated At",
+        accessor: "updated_at",
+        Cell: ({ value }) => {
+          return <DisplayDate value={value} />;
+        },
+      },
+      {
+        Header: "Decrypt At",
+        accessor: "decrypt_at",
+        Cell: ({ row }) => {
+          const value = row.original.data.decrypt_at;
+
+          return <DisplayDate value={value} />;
+        },
+      },
+      {
+        Header: "Inventor",
+        accessor: (row) => {
+          return row.data.inventor;
+        },
+        Cell: ({ row }) => {
+          return (
+            <div className="flex gap-2 items-center">
+              <div>{row.original.data.inventor}</div>
+            </div>
+          );
+        },
+      },
+      {
+        Header: "Title",
+        accessor: (row) => {
+          return row.data.title;
+        },
+        Cell: ({ row }) => {
+          return (
+            <div
+              className="flex gap-2 items-center"
+              title={row.original.description}
+            >
+              <Avatar
+                src={row.original.data.image || "/lightbulb-custom.png"}
+                alt={`${row.original.data.title}'s Image`}
+              />
+              <div>{row.original.data.title}</div>
+            </div>
+          );
+        },
+      },
+      {
+        Header: "Description",
+        accessor: (row) => {
+          return row.data.description;
+        },
+        Cell: ({ row }) => {
+          return (
+            <div className="flex gap-2 items-center">
+              <div>{row.original.data?.description}</div>
+            </div>
+          );
+        },
+      },
+      {
+        Header: "File",
+        accessor: (row) => {
+          return row.data.file;
+        },
+        Cell: ({ row }) => {
+          const {
+            data: { url, filename, mimeType, encrypted: _encrypted },
+          } = row.original;
+          const encrypted =
+            _encrypted != null
+              ? _encrypted
+              : (url || filename || "").endsWith(".enc");
+          return url && filename ? (
+            <div title={`url=${url}, filename=${filename}`}>
+              {mimeType}, {encrypted ? "encrypted" : "plain"}
+            </div>
+          ) : undefined;
+        },
+      },
+      {
+        Header: "Tags",
+        accessor: (row) => {
+          return row.data.tags.join(",");
+        },
+        Cell: ({ row }) => {
+          const value = row.original.data.tags;
+          return <div>{(value || []).join(", ")}</div>;
+        },
+      },
+      {
+        Header: "Delete",
+        Cell: ({ row }) => {
+          return (
+            <Delete
+              item={row.original}
+              reload={() => {
+                const event = new Event("reload");
+                window.dispatchEvent(event);
+              }}
+            />
+          );
+        },
+      },
+    ],
+    [requests]
+  );
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -562,10 +597,10 @@ function Table1({ setFocusedRow }) {
   );
 }
 
-export function Table({ setFocusedRow }) {
+export function Table({ setFocusedRow, requests }) {
   return (
     <div className="flex flex-col overflow-auto py-4 sm:py-0">
-      <Table1 setFocusedRow={setFocusedRow} />
+      <Table1 setFocusedRow={setFocusedRow} requests={requests} />
     </div>
   );
 }

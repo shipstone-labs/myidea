@@ -26,7 +26,6 @@ export const Modal = () => {
   const year = date.getFullYear();
   date.setFullYear(year + 1);
   const defaultDate = date.toISOString().split("T")[0];
-  console.log(defaultDate);
   const [publicDate, setPublicDate] = useState(defaultDate);
   const { user } = useContext(AuthContext);
 
@@ -430,7 +429,6 @@ export const Modal = () => {
                             placeholder="Decryption Date"
                             type="date"
                             onChange={(e) => {
-                              console.log(e.target.value);
                               setPublicDate(e.target.value);
                             }}
                             value={publicDate}
