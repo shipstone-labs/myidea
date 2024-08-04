@@ -29,7 +29,6 @@ import {
 } from "@headlessui/react";
 import { DisplayDate } from "./View.jsx";
 import { GiIncomingRocket } from "react-icons/gi";
-import { WarpcastButton } from "./Cast.jsx";
 
 export function Avatar({ src, alt = "avatar", large = false }) {
   return (

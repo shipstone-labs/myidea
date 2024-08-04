@@ -305,7 +305,7 @@ export const View = ({ row, onClose, requests }) => {
                   ) : undefined}
                   {hasAccess ? (
                     <WarpcastButton
-                      text={`${row.original.data.title}\n${row.original.data.description}\n${[...(row.original.data.tags || []), "icp"].join(", ")}`}
+                      text={`${row.original.data.inventor}\n${new Date(Number(row.original.created_at / 1000000n)).toLocaleDateString()}\n${row.original.data.title}\n${row.original.data.description}\n${[...(row.original.data.tags || []), "icp"].join(", ")}`}
                       embeds={[
                         domain,
                         ...(row.original.data.image
