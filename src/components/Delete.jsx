@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 import { Backdrop } from "./Backdrop";
 
-export const Delete = ({ item, reload }) => {
+export const Delete = ({ item, reload, disabled }) => {
   const [inProgress, setInProgress] = useState(false);
 
   const delItem = async (doc) => {
@@ -53,7 +53,11 @@ export const Delete = ({ item, reload }) => {
       <button
         role="cell"
         type="button"
-        className="hover:text-blue-500 active:text-blue-400"
+        className={`inline-block flex items-center gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 ${
+          disabled
+            ? "opacity-25"
+            : "hover:bg-red-600 dark:hover:bg-red-300 dark:hover:text-black active:bg-red-400 dark:active:bg-red-500 active:shadow-none active:translate-x-[5px] active:translate-y-[5px]"
+        }`}
         onClick={async (e) => {
           e.stopPropagation();
           if (confirm("Are you sure?")) {
@@ -85,6 +89,7 @@ export const Delete = ({ item, reload }) => {
             />
           </g>
         </svg>
+        Delete
       </button>
 
       {inProgress && <Backdrop spinner={true} />}
@@ -95,4 +100,5 @@ export const Delete = ({ item, reload }) => {
 Delete.propTypes = {
   item: PropTypes.object.isRequired,
   reload: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };

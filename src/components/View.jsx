@@ -14,6 +14,7 @@ import { useCallback } from "react";
 import { nanoid } from "nanoid";
 import { GiSelfLove, GiShare } from "react-icons/gi";
 import { WarpcastButton } from "./Cast";
+import { Delete } from "./Delete";
 
 export const DisplayDate = ({ value, long, wide }) => {
   const date = value ? new Date(Number(BigInt(value) / 1000000n)) : "";
@@ -562,6 +563,15 @@ export const View = ({ row, onClose, requests }) => {
               >
                 Close
               </button>
+              {row.original.owner === user.key ? (
+                <Delete
+                  item={row.original}
+                  reload={() => {
+                    onClose();
+                    window.dispatchEvent(new Event("reload"));
+                  }}
+                />
+              ) : undefined}
             </div>
           </form>
           <Backdrop />
