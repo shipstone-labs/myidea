@@ -7,6 +7,6 @@ type SignatureVerificationReply = record { is_signature_valid : bool };
 service : {
   build_version : () -> (text) query;
   public_key : () -> (Result);
-  sign : (text) -> (Result_1);
+  sign : (text, text) -> (Result_1);
   verify : (text, text, text) -> (Result_2) query;
 }

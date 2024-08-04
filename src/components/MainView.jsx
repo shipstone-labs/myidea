@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Table } from "./Table";
 import { View } from "./View";
 import { Modal } from "./Modal";
+import { getKey } from "../util";
 
 export const MainView = () => {
   const [requests, setRequests] = useState({});
@@ -16,7 +17,8 @@ export const MainView = () => {
     if (!user?.key) {
       return;
     }
-    const doList = () => {
+    const doList = async () => {
+      await getKey("something");
       listDocs({
         collection: "requests",
         filter: {

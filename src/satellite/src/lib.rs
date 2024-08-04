@@ -94,6 +94,8 @@ enum EcdsaKeyIds {
     TestKey1,
     #[allow(unused)]
     ProductionKey1,
+    #[allow(unused)]
+    JunoKey1,
 }
 
 impl EcdsaKeyIds {
@@ -101,9 +103,10 @@ impl EcdsaKeyIds {
         EcdsaKeyId {
             curve: EcdsaCurve::Secp256k1,
             name: match self {
-                Self::TestKeyLocalDevelopment => "dfx_test_key",
+                Self::TestKeyLocalDevelopment => "juno_test_key",
                 Self::TestKey1 => "test_key_1",
                 Self::ProductionKey1 => "key_1",
+                Self::JunoKey1 => "juno_test_key",
             }
             .to_string(),
         }
@@ -128,11 +131,15 @@ async fn public_key() -> Result<PublicKeyReply, String> {
 }
 
 #[update]
-async fn sign(message: String) -> Result<SignatureReply, String> {
+async fn sign(key: String, message: String) -> Result<SignatureReply, String> {
+    let derivation_path: Vec<Vec<u8>> = vec![vec![1, 2]];
     let request = SignWithEcdsaArgument {
         message_hash: sha256(&message).to_vec(),
-        derivation_path: vec![],
-        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+        derivation_path,
+        key_id: EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name: key,
+        },
     };
 
     let (response,) = sign_with_ecdsa(request)

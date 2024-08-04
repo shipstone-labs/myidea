@@ -116,11 +116,12 @@ export const Download = ({
         }}
         disabled={showModal}
       >
-        Download{" "}
+        Download{encrypted ? " & Decrypt" : ""}
         {encrypted ? (
           <RiFileShield2Fill className="inline-block align-middle" />
-        ) : undefined}
-        <RiFileDownloadFill className="inline-block align-middle" />
+        ) : (
+          <RiFileDownloadFill className="inline-block align-middle" />
+        )}
       </Button>
       <a
         alt="download"
@@ -184,7 +185,7 @@ export const Download = ({
                   </button>
 
                   <Button onClick={download} disabled={passPhrase === ""}>
-                    Download
+                    Download{encrypted ? " & Decrypt" : ""}
                   </Button>
                 </div>
               )}

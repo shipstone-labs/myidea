@@ -29,6 +29,7 @@ import {
 } from "@headlessui/react";
 import { DisplayDate } from "./View.jsx";
 import { GiIncomingRocket } from "react-icons/gi";
+import { WarpcastButton } from "./Cast.jsx";
 
 export function Avatar({ src, alt = "avatar", large = false }) {
   return (
@@ -332,7 +333,7 @@ function TableComponent({
                         {...rest}
                         className={
                           row.original.owner === user.key ||
-                          row.original.readers?.includes(user.key)
+                          row.original?.data?.readers?.includes(user.key)
                             ? "p-1 text-sm font-normal text-gray-700 first:rounded-l-lg last:rounded-r-lg"
                             : "p-1 text-sm font-normal text-gray-400 first:rounded-l-lg last:rounded-r-lg"
                         }

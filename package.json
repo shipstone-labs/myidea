@@ -13,14 +13,20 @@
     "postinstall": "npm run postinstall:copy-auth"
   },
   "dependencies": {
+    "@dfinity/agent": "^1.4.0",
     "@headlessui/react": "^2.1.2",
     "@junobuild/core": "^0.0.53",
+    "@rainbow-me/rainbowkit": "^2.1.3",
+    "@types/prop-types": "^15.7.12",
+    "azle": "^0.23.0",
     "nanoid": "^5.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.2.1",
     "react-table": "^7.8.0",
-    "react-tag-input-component": "^2.0.2"
+    "react-tag-input-component": "^2.0.2",
+    "viem": "^2.18.8",
+    "wagmi": "^2.12.2"
   },
   "devDependencies": {
     "@junobuild/config": "^0.0.10",

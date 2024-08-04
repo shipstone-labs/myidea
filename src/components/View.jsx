@@ -13,8 +13,9 @@ import { FaCheck, FaX } from "react-icons/fa6";
 import { useCallback } from "react";
 import { nanoid } from "nanoid";
 import { GiSelfLove, GiShare } from "react-icons/gi";
+import { WarpcastButton } from "./Cast";
 
-export const DisplayDate = ({ value, long }) => {
+export const DisplayDate = ({ value, long, wide }) => {
   const date = value ? new Date(Number(BigInt(value) / 1000000n)) : "";
   let nano = value ? Number(value % 1000000n) : 0;
   while (nano.length < 6) {
@@ -22,10 +23,12 @@ export const DisplayDate = ({ value, long }) => {
   }
   const title = date ? date.toISOString().replace(/Z$/, `${nano}Z`) : "";
   return (
-    <div title={title}>
-      <div>{date ? date.toLocaleDateString() : ""}</div>
+    <div className={wide ? "mx-1 inline-block" : ""} title={title}>
+      <div className={wide ? "mx-1 inline-block" : ""}>
+        {date ? date.toLocaleDateString() : ""}
+      </div>
       {long ? (
-        <div>
+        <div className={wide ? "mx-1 inline-block" : ""}>
           <small>{date ? date.toLocaleTimeString() : undefined}</small>
         </div>
       ) : undefined}
@@ -111,8 +114,8 @@ export const View = ({ row, onClose, requests }) => {
     async (e) => {
       e.stopPropagation();
       if (
-        !row?.original?.readers?.includes(user.key) &&
-        true // row.original.owner !== user.key
+        !row?.original?.data?.readers?.includes(user.key) &&
+        row.original.owner !== user.key
       ) {
         setRequesting(true);
         setTimeout(async () => {
@@ -219,7 +222,8 @@ export const View = ({ row, onClose, requests }) => {
   );
   const hasAccess =
     row?.original?.owner === user.key ||
-    row?.original?.readers?.includes(user.key);
+    row?.original?.data?.readers?.includes(user.key);
+  const domain = window.location.origin;
   return (
     <>
       {row ? (
@@ -298,6 +302,17 @@ export const View = ({ row, onClose, requests }) => {
                     >
                       Request
                     </button>
+                  ) : undefined}
+                  {hasAccess ? (
+                    <WarpcastButton
+                      text={`${row.original.data.title}\n${row.original.data.description}\n${[...(row.original.data.tags || []), "icp"].join(", ")}`}
+                      embeds={[
+                        domain,
+                        ...(row.original.data.image
+                          ? [row.original.data.image]
+                          : []),
+                      ]}
+                    />
                   ) : undefined}
                 </span>
                 <CopyToClipboardButton content={row.original.owner} />
@@ -418,25 +433,9 @@ export const View = ({ row, onClose, requests }) => {
                   />
                   {filename != null ? (
                     <div className="relative w-full max-w-xl">
-                      <div className="flex items-center my-3">
-                        <input
-                          checked={encrypted}
-                          readOnly
-                          id="checked-checkbox"
-                          type="checkbox"
-                          value=""
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                        />
-                        <label
-                          htmlFor="checked-checkbox"
-                          className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                        >
-                          Encrypted
-                        </label>
-                      </div>
                       {encrypted ? (
                         <>
-                          <div className="mb-5 relative w-full max-w-xl">
+                          <div className="my-5 relative w-full max-w-xl">
                             <label
                               htmlFor="decryptionDate"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -538,8 +537,13 @@ export const View = ({ row, onClose, requests }) => {
                                   </>
                                 ) : (
                                   <GiShare className="inline-block align-middle" />
-                                )}{" "}
-                                at <DisplayDate value={item.created_at} long />
+                                )}
+                                &nbsp; at
+                                <DisplayDate
+                                  value={item.created_at}
+                                  long
+                                  wide
+                                />
                               </span>
                             </small>
                           </div>

@@ -1,3 +1,7 @@
+/* eslint-disable no-unused-vars */
+import { idlFactory } from "./satellite.js";
+import { Actor, HttpAgent } from "@dfinity/agent";
+
 export async function readFile(file) {
   return new Promise((resolve) => {
     const fr = new FileReader();
@@ -78,6 +82,26 @@ export async function encryptFile(objFile, passPhrase = undefined) {
     });
   }
   return objFile;
+}
+
+globalThis.global = globalThis;
+
+export async function getKey(_tag) {
+  // const canisterId = import.meta.env.VITE_SATELLITE_ID;
+  // const agent = new HttpAgent({
+  //   host: import.meta.env.DEV ? `http://127.0.0.1:5987/` : "https://ic0.app/",
+  // });
+  // if (import.meta.env.DEV) {
+  //   agent.fetchRootKey();
+  // }
+  // const sat = Actor.createActor(idlFactory, {
+  //   agent,
+  //   canisterId,
+  // });
+  // console.log(sat);
+  // console.log(
+  //   await sat.sign(import.meta.env.DEV ? "juno_test_key" : "key_1", _tag)
+  // );
 }
 
 export async function decryptFile(
