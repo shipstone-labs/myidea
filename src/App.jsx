@@ -5,6 +5,9 @@ import { Background } from "./components/Background";
 import { Footer } from "./components/Footer";
 import { FaLightbulb } from "react-icons/fa";
 import { MainView } from "./components/MainView";
+import { WagmiConfig } from "wagmi";
+import { config } from "./providers";
+import Profile from "./components/Profile";
 
 function App() {
   useEffect(() => {
@@ -17,9 +20,10 @@ function App() {
   }, []);
 
   return (
-    <>
+    <WagmiConfig client={config}>
       <div className="relative isolate min-h-[100dvh]">
         <main className="mx-auto max-w-screen-2xl py-16 px-8 md:px-24 tall:min-h-[calc(100dvh-128px)]">
+          <Profile />
           <h1 className="dark:text-white text-5xl md:text-6xl font-bold tracking-tight md:pt-24">
             <FaLightbulb className="inline-block align-middle" /> MyIdea
           </h1>
@@ -28,6 +32,7 @@ function App() {
           </p>
 
           <Auth>
+            <Profile />
             <MainView />
           </Auth>
         </main>
@@ -36,7 +41,7 @@ function App() {
 
         <Background />
       </div>
-    </>
+    </WagmiConfig>
   );
 }
 

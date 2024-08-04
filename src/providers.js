@@ -1,56 +1,23 @@
-import { createClient, configureChains } from "wagmi";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { publicProvider } from "wagmi/providers/public";
-import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
-import { Chain } from "viem";
+import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
+import { http } from "viem";
+import { lukso } from "wagmi/chains";
 
-// Define the LUKSO chain configuration
-const luksoChain = {
-  id: 2828, // LUKSO L14 Testnet Chain ID
-  name: "LUKSO L14",
-  network: "lukso",
-  nativeCurrency: {
-    name: "LYXt",
-    symbol: "LYXt",
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: "https://rpc.l14.lukso.network",
-  },
-  blockExplorers: {
-    default: {
-      name: "LUKSO Explorer",
-      url: "https://explorer.execution.l14.lukso.network",
-    },
-  },
-  testnet: true,
-};
+export const chains = [lukso];
 
-// Configure chains and providers
-const { chains, provider } = configureChains(
-  [luksoChain],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => {
-        if (chain.id !== luksoChain.id) return null;
-        return { http: chain.rpcUrls.default };
-      },
-    }),
-    publicProvider(),
-  ]
-);
-
-// Configure wallets
-const { connectors } = getDefaultWallets({
-  appName: "My LUKSO dApp",
+export const config = defaultWagmiConfig({
   chains,
+  multiInjectedProviderDiscovery: true,
+  transports: {
+    [lukso.id]: http(),
+  },
+  // projectId: feature.walletConnect.projectId,
+  metadata: {
+    name: "MyIdea",
+    description:
+      "MyIdea is a decentralized application for defining patent claims by the nanosecond",
+    url: "https://myidea.shipstone.com",
+    icons: ["https://myidea.shipstone.com/favicon-32x32.png"],
+  },
+  enableEmail: true,
+  ssr: true,
 });
-
-// Create wagmi client
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
-
-export { chains, wagmiClient };
